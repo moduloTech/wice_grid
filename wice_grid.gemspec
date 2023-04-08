@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'wice_grid'
-  s.version       = '5.0.0'
+  s.version       = '6.0.0'
   s.authors       = ['Yuri Leikind and contributors']
   s.email         = ['ciappa_m@modulotech.fr']
   s.homepage      = 'https://github.com/moduloTech/wice_grid'
@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '>= 5.0', '< 8'
   s.add_dependency 'kaminari',          ['~> 1.1']
   s.add_dependency 'coffee-rails',      ['> 3.2']
+  s.add_dependency 'caxlsx',            ['~> 3.3.0']
 
   s.add_development_dependency('rake',  '~> 10.1')
   s.add_development_dependency('byebug')
