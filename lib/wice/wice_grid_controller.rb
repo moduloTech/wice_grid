@@ -113,10 +113,14 @@ module Wice
         template_name ||= grid.name + '_grid'
         temp_filename = render_to_string(partial: template_name)
         temp_filename = temp_filename.strip
-        filename = (grid.csv_file_name || grid.name) + '.csv'
-        grid.csv_tempfile.close
-        send_file temp_filename, filename: filename, type: "text/csv; charset=#{get_output_encoding grid.csv_encoding}"
-        grid.csv_tempfile = nil
+        filename = (grid.csv_file_name || grid.name) + '.xlsx'
+
+        send_data grid.axlsx_package.to_stream.read,
+                  filename: filename,
+                  type: "application/xlsx",
+                  disposition: 'inline',
+                  stream: 'true',
+                  buffer_size: '4096'
         true
       else
         yield if block_given?

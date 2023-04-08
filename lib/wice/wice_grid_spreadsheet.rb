@@ -1,19 +1,18 @@
-require 'csv'
-
 module Wice
   class Spreadsheet  #:nodoc:
 
     #:nodoc:
-    attr_reader :tempfile
+    attr_reader :package
 
-    def initialize(name, field_separator, encoding = nil)  #:nodoc:
-      @tempfile = Tempfile.new(name)
-      @tempfile.set_encoding(encoding) unless encoding.blank?
-      @csv = CSV.new(@tempfile, col_sep: field_separator)
+    def initialize(name)  #:nodoc:
+      @package = Axlsx::Package.new
+      workbook = @package.workbook
+      @sheet = workbook.add_worksheet
     end
 
     def << (row)  #:nodoc:
-      @csv << row
+      @sheet.add_row(row)
     end
+
   end
 end

@@ -115,7 +115,7 @@ module Wice
         Defaults::REUSE_LAST_COLUMN_FOR_FILTER_ICONS && rendering.last_column_for_html.capable_of_hosting_filter_related_icons?
 
       if grid.output_csv?
-        grid_csv(grid, rendering)
+        grid_axlsx(grid, rendering)
       else
         # If blank_slate is defined we don't show any grid at all
         if rendering.blank_slate_handler && grid.resultset.size == 0 && !grid.filtering_on?
@@ -127,7 +127,7 @@ module Wice
 
       grid.view_helper_finished = true
 
-      grid.csv_tempfile ? grid.csv_tempfile.path : nil
+      grid.axlsx_package
     end
 
     # Used after <tt>define_grid</tt> to actually output the grid HTML code.
@@ -136,8 +136,8 @@ module Wice
     def render_grid(grid)
       if grid.output_buffer
         grid.output_buffer
-      elsif grid.csv_tempfile
-        grid.csv_tempfile.path
+      elsif grid.axlsx_package
+        grid.axlsx_package
       else
         raise WiceGridException.new("Attempt to use 'render_grid' without 'define_grid' before.")
       end
@@ -147,12 +147,12 @@ module Wice
       grid.output_buffer = GridOutputBuffer.new
 
       grid.output_buffer << if rendering.blank_slate_handler.is_a?(Proc)
-        call_block(rendering.blank_slate_handler, nil)
-      elsif rendering.blank_slate_handler.is_a?(Hash)
-        render(rendering.blank_slate_handler)
-      else
-        rendering.blank_slate_handler
-      end
+                              call_block(rendering.blank_slate_handler, nil)
+                            elsif rendering.blank_slate_handler.is_a?(Hash)
+                              render(rendering.blank_slate_handler)
+                            else
+                              rendering.blank_slate_handler
+                            end
 
       # rubocop:disable Style/SymbolProc
       if rendering.find_one_for(:in_html) { |column| column.detach_with_id }
@@ -176,10 +176,10 @@ module Wice
         opts = opts ? opts.clone : {}
 
         column_block_output = if column.class == Columns.get_view_column_processor(:action)
-          cell_block.call(ar, params)
-        else
-          call_block(cell_block, ar)
-        end
+                                cell_block.call(ar, params)
+                              else
+                                call_block(cell_block, ar)
+                              end
 
         if column_block_output.is_a?(Array)
 
@@ -280,10 +280,10 @@ module Wice
       # first row of column labels with sorting links
 
       filter_shown = if options[:show_filters] == :when_filtered
-        grid.filtering_on?
-      elsif options[:show_filters] == :always
-        true
-      end
+                       grid.filtering_on?
+                     elsif options[:show_filters] == :always
+                       true
+                     end
 
       rendering.each_column_aware_of_one_last_one(:in_html) do |column, last|
         column_name = column.name
@@ -422,25 +422,25 @@ module Wice
 
       grid.each do |ar| # rows
         before_row_output = if rendering.before_row_handler
-          call_block(rendering.before_row_handler, ar, number_of_columns_for_extra_rows)
-        end
+                              call_block(rendering.before_row_handler, ar, number_of_columns_for_extra_rows)
+                            end
 
         after_row_output = if rendering.after_row_handler
-          call_block(rendering.after_row_handler, ar, number_of_columns_for_extra_rows)
-        end
+                             call_block(rendering.after_row_handler, ar, number_of_columns_for_extra_rows)
+                           end
 
         replace_row_output = if rendering.replace_row_handler
-          call_block(rendering.replace_row_handler, ar, number_of_columns_for_extra_rows)
-        end
+                               call_block(rendering.replace_row_handler, ar, number_of_columns_for_extra_rows)
+                             end
 
         row_content = if replace_row_output
-          no_rightmost_column = true
-          replace_row_output
-        else
-          row_content, tmp_cell_value_of_the_ordered_column = get_row_content(rendering, ar, sorting_dependant_row_cycling)
-          cell_value_of_the_ordered_column = tmp_cell_value_of_the_ordered_column if tmp_cell_value_of_the_ordered_column
-          row_content
-        end
+                        no_rightmost_column = true
+                        replace_row_output
+                      else
+                        row_content, tmp_cell_value_of_the_ordered_column = get_row_content(rendering, ar, sorting_dependant_row_cycling)
+                        cell_value_of_the_ordered_column = tmp_cell_value_of_the_ordered_column if tmp_cell_value_of_the_ordered_column
+                        row_content
+                      end
 
         row_attributes = rendering.get_row_attributes(ar)
 
@@ -461,8 +461,8 @@ module Wice
       end
 
       last_row_output = if rendering.last_row_handler
-        call_block(rendering.last_row_handler, number_of_columns_for_extra_rows)
-      end
+                          call_block(rendering.last_row_handler, number_of_columns_for_extra_rows)
+                        end
 
       grid.output_buffer << last_row_output if last_row_output
 
@@ -485,12 +485,12 @@ module Wice
       ]
 
       filter_declarations = if no_filters_at_all
-        []
-      else
-        rendering.select_for(:in_html) do |vc|
-          vc.attribute && vc.filter
-        end.collect(&:yield_declaration)
-      end
+                              []
+                            else
+                              rendering.select_for(:in_html) do |vc|
+                                vc.attribute && vc.filter
+                              end.collect(&:yield_declaration)
+                            end
 
       wg_data = {
         'data-processor-initializer-arguments' => processor_initializer_arguments.to_json,
@@ -506,13 +506,13 @@ module Wice
 
       if Rails.env.development?
         grid.output_buffer << javascript_tag(%/ document.ready = function(){ \n/ +
-          %$ if (typeof(WiceGridProcessor) == "undefined"){\n$ +
-          %$   alert("wice_grid.js not loaded, WiceGrid cannot proceed!\\n" +\n$ +
-          %(     "Make sure that you have loaded wice_grid.js.\\n" + ) +
-          %(     "Add line //= require wice_grid.js " + ) +
-          %$     "to app/assets/javascripts/application.js")\n$ +
-          %( } ) +
-          %$ } $)
+                                               %$ if (typeof(WiceGridProcessor) == "undefined"){\n$ +
+                                               %$   alert("wice_grid.js not loaded, WiceGrid cannot proceed!\\n" +\n$ +
+                                               %(     "Make sure that you have loaded wice_grid.js.\\n" + ) +
+                                               %(     "Add line //= require wice_grid.js " + ) +
+                                               %$     "to app/assets/javascripts/application.js")\n$ +
+                                               %( } ) +
+                                               %$ } $)
       end
 
       grid.output_buffer
@@ -586,8 +586,8 @@ module Wice
                   'data-grid-name' => grid.name
     end
 
-    def grid_csv(grid, rendering) #:nodoc:
-      spreadsheet = ::Wice::Spreadsheet.new(grid.name, grid.csv_field_separator, grid.csv_encoding)
+    def grid_axlsx(grid, rendering) #:nodoc:
+      spreadsheet = ::Wice::Spreadsheet.new(grid.name)
 
       # columns
       spreadsheet << rendering.column_labels(:in_csv)
@@ -609,7 +609,7 @@ module Wice
         end
         spreadsheet << row
       end
-      grid.csv_tempfile = spreadsheet.tempfile
+      grid.axlsx_package = spreadsheet.package
     end
 
     def pagination_panel_content(grid, extra_request_parameters, allow_showing_all_records, pagination_theme) #:nodoc:
