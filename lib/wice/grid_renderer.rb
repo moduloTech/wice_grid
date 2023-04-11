@@ -103,29 +103,29 @@ module Wice
     alias_method :each, :each_column
     include Enumerable
 
-    def csv_export_icon #:nodoc:
+    def xslx_export_icon #:nodoc:
       content_tag(
         :div,
         content_tag(:i, '', class: 'fa fa-file-excel-o'),
-        title: NlMessage['csv_export_tooltip'],
-        class: 'clickable export-to-csv-button'
+        title: NlMessage['xlsx_export_tooltip'],
+        class: 'clickable export-to-xlsx-button'
       )
     end
 
-    def pagination_panel(number_of_columns, hide_csv_button)  #:nodoc:
+    def pagination_panel(number_of_columns, hide_xlsx_button)  #:nodoc:
       panel = yield
 
-      render_csv_button = @grid.export_to_csv_enabled && !hide_csv_button
+      render_xlsx_button = @grid.export_to_xlsx_enabled && !hide_xlsx_button
 
       if panel.nil?
-        if render_csv_button
-          "<tr><td colspan=\"#{number_of_columns}\"></td><td>#{csv_export_icon}</td></tr>"
+        if render_xlsx_button
+          "<tr><td colspan=\"#{number_of_columns}\"></td><td>#{xlsx_export_icon}</td></tr>"
         else
           ''
         end
       else
-        if render_csv_button
-          "<tr><td colspan=\"#{number_of_columns}\">#{panel}</td><td>#{csv_export_icon}</td></tr>"
+        if render_xlsx_button
+          "<tr><td colspan=\"#{number_of_columns}\">#{panel}</td><td>#{xlsx_export_icon}</td></tr>"
         else
           "<tr><td colspan=\"#{number_of_columns + 1}\">#{panel}</td></tr>"
         end
@@ -278,9 +278,9 @@ module Wice
     #   +grid_filter+ helper. The value is an arbitrary unique identifier
     #   of the filter. Read section 'Detached Filters' in README for details.
     #   Has effect in a column with a boolean filter _or_ a custom filter.
-    # * <tt>:in_csv</tt> - When CSV export is enabled, all columns are included into the export. Setting <tt>:in_csv</tt>
+    # * <tt>:in_xlsx</tt> - When XLSX export is enabled, all columns are included into the export. Setting <tt>:in_xlsx</tt>
     #   to false will prohibit the column from inclusion into the export.
-    # * <tt>:in_html</tt> - When CSV export is enabled and it is needed to use a column for CSV export only and ignore it
+    # * <tt>:in_html</tt> - When XLSX export is enabled and it is needed to use a column for XLSX export only and ignore it
     #   in HTML, set this parameter to false.
     # * <tt>:negation</tt> - turn on/off the negation checkbox in string filters
     # * <tt>:auto_reload</tt> - a boolean value specifying if a change in a filter triggers reloading of the grid. Works with all
@@ -317,7 +317,7 @@ module Wice
         filter_control_options:      {},
         filter_type:                 nil,
         html:                        {},
-        in_csv:                      true,
+        in_xlsx:                      true,
         in_html:                     true,
         model:                       nil, # will throw an exception with instructions
         name:                        '',

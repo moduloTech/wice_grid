@@ -33,8 +33,8 @@ module Wice
     # * <tt>:hide_submit_button</tt> - Do not show the default Filter Submit button.
     #   Useful when using a custom submit button
     #   By default it is false.
-    # * <tt>:hide_csv_button</tt> - a boolean value which defines whether the default Export To CSV button
-    #   should be rendered. Useful when using a custom Export To CSV button.
+    # * <tt>:hide_xlsx_button</tt> - a boolean value which defines whether the default Export To XLSX button
+    #   should be rendered. Useful when using a custom Export To XLSX button.
     #   By default it is false.
     #   Please read README for more insights.
     #
@@ -92,7 +92,7 @@ module Wice
         header_tr_html:                 {},
         hide_reset_button:              false,
         hide_submit_button:             false,
-        hide_csv_button:                false,
+        hide_xlsx_button:                false,
         show_filters:                   Defaults::SHOW_FILTER,
         sorting_dependant_row_cycling:  false,
         html:                           {},
@@ -114,7 +114,7 @@ module Wice
       reuse_last_column_for_filter_buttons =
         Defaults::REUSE_LAST_COLUMN_FOR_FILTER_ICONS && rendering.last_column_for_html.capable_of_hosting_filter_related_icons?
 
-      if grid.output_csv?
+      if grid.output_xlsx?
         grid_axlsx(grid, rendering)
       else
         # If blank_slate is defined we don't show any grid at all
@@ -263,7 +263,7 @@ module Wice
 
       pagination_panel_content_html = nil
       if options[:upper_pagination_panel]
-        grid.output_buffer << rendering.pagination_panel(number_of_columns, options[:hide_csv_button]) do
+        grid.output_buffer << rendering.pagination_panel(number_of_columns, options[:hide_xlsx_button]) do
           pagination_panel_content_html =
             pagination_panel_content(grid, options[:extra_request_parameters], options[:allow_showing_all_records], options[:pagination_theme])
           pagination_panel_content_html
@@ -404,7 +404,7 @@ module Wice
       end
 
       grid.output_buffer << '</thead><tfoot>'
-      grid.output_buffer << rendering.pagination_panel(number_of_columns, options[:hide_csv_button]) do
+      grid.output_buffer << rendering.pagination_panel(number_of_columns, options[:hide_xlsx_button]) do
         if pagination_panel_content_html
           pagination_panel_content_html
         else
@@ -470,7 +470,7 @@ module Wice
 
       base_link_for_filter, base_link_for_show_all_records = rendering.base_link_for_filter(controller, options[:extra_request_parameters])
 
-      link_for_export = rendering.link_for_export(controller, 'csv', options[:extra_request_parameters])
+      link_for_export = rendering.link_for_export(controller, 'xlsx', options[:extra_request_parameters])
 
       parameter_name_for_query_loading = { grid.name => { q: '' } }.to_query
       parameter_name_for_focus = { grid.name => { foc: '' } }.to_query
@@ -590,13 +590,13 @@ module Wice
       spreadsheet = ::Wice::Spreadsheet.new(grid.name)
 
       # columns
-      spreadsheet << rendering.column_labels(:in_csv)
+      spreadsheet << rendering.column_labels(:in_xlsx)
 
       # rendering  rows
       grid.each do |ar| # rows
         row = []
 
-        rendering.each_column(:in_csv) do |column|
+        rendering.each_column(:in_xlsx) do |column|
           cell_block = column.cell_rendering_block
 
           column_block_output = call_block(cell_block, ar)

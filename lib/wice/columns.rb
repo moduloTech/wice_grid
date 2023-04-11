@@ -99,7 +99,7 @@ module Wice #:nodoc:
 
       # fields defined from the options parameter
       FIELDS = [:attribute, :name, :html, :filter, :model, :allow_multiple_selection,
-                :in_html, :in_csv, :table_alias, :custom_order, :detach_with_id, :ordering, :auto_reload,
+                :in_html, :in_xlsx, :table_alias, :custom_order, :detach_with_id, :ordering, :auto_reload,
                 :filter_control_options, :sort_by]
 
       attr_accessor(*FIELDS)

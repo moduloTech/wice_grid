@@ -1,13 +1,13 @@
 Gem::Specification.new do |s|
   s.name          = 'wice_grid'
-  s.version       = '6.0.0'
+  s.version       = '6.1.0'
   s.authors       = ['Yuri Leikind and contributors']
   s.email         = ['ciappa_m@modulotech.fr']
   s.homepage      = 'https://github.com/moduloTech/wice_grid'
   s.summary       = 'A Rails grid plugin to quickly create grids with sorting, pagination, and filters.'
   s.description   = 'A Rails grid plugin to create grids with sorting, pagination, and filters generated automatically based on column types. ' \
     'The contents of the cell are up for the developer, just like one does when rendering a collection via a simple table. ' \
-    'WiceGrid automates implementation of filters, ordering, paginations, CSV export, and so on. ' \
+    'WiceGrid automates implementation of filters, ordering, paginations, XLSX export, and so on. ' \
     'Ruby blocks provide an elegant means for this.'
 
   s.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)

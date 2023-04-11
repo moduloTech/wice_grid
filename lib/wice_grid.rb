@@ -68,7 +68,7 @@ module Wice
   # Main class responsible for keeping the state of the grid, building an ActiveRelation, and running queries
   class WiceGrid
     attr_reader :klass, :name, :resultset, :custom_order, :query_store_model #:nodoc:
-    attr_reader :ar_options, :status, :export_to_csv_enabled, :csv_file_name, :saved_query #:nodoc:
+    attr_reader :ar_options, :status, :export_to_xlsx_enabled, :xlsx_file_name, :saved_query #:nodoc:
     attr_writer :renderer #:nodoc:
     attr_accessor :output_buffer, :view_helper_finished, :axlsx_package #:nodoc:
 
@@ -107,9 +107,9 @@ module Wice
         # options that are understood
         @options = {
           conditions:                 nil,
-          csv_file_name:              nil,
+          xlsx_file_name:              nil,
           custom_order:               {},
-          enable_export_to_csv:       ConfigurationProvider.value_for(:ENABLE_EXPORT_TO_CSV),
+          enable_export_to_xlsx:       ConfigurationProvider.value_for(:ENABLE_EXPORT_TO_XLSX),
           group:                      nil,
           include:                    nil,
           joins:                      nil,
@@ -133,8 +133,8 @@ module Wice
       opts.assert_valid_keys(@options.keys)
 
       @options.merge!(opts)
-      @export_to_csv_enabled = @options[:enable_export_to_csv]
-      @csv_file_name = @options[:csv_file_name]
+      @export_to_xlsx_enabled = @options[:enable_export_to_xlsx]
+      @xlsx_file_name = @options[:xlsx_file_name]
 
       case @name = @options[:name]
       when String
@@ -213,7 +213,7 @@ module Wice
     def process_params  #:nodoc:
       if this_grid_params
         @status.merge!(this_grid_params)
-        @status.delete(:export) unless self.export_to_csv_enabled
+        @status.delete(:export) unless self.export_to_xlsx_enabled
       end
     end
 
@@ -361,7 +361,7 @@ module Wice
         # If relation is an Array, it got the sort from apply_sort_by.
         relation = relation.order(@ar_options[:order]) if !relation.is_a?(Array)
 
-        if !output_csv? && !all_record_mode?
+        if !output_xlsx? && !all_record_mode?
           if relation.is_a?(Array)
             relation = Kaminari.paginate_array(relation, limit: @ar_options[:per_page], offset: @ar_options[:per_page].to_i * (@ar_options[:page].to_i - 1))
           else
@@ -511,8 +511,8 @@ module Wice
       end.sort { |a, b| a[0] <=> b[0] }
     end
 
-    def output_csv? #:nodoc:
-      @status[:export] == 'csv'
+    def output_xlsx? #:nodoc:
+      @status[:export] == 'xlsx'
     end
 
     def output_html? #:nodoc:

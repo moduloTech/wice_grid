@@ -2,7 +2,7 @@ zh:
   wice_grid:
     show_filter_tooltip: 显示过滤
     hide_filter_tooltip: 隐藏过滤
-    csv_export_tooltip: 输出CSV档
+    xlsx_export_tooltip: 输出XLSX档
     filter_tooltip: 过滤
     reset_filter_tooltip: 清除过滤
     boolean_filter_true_label: "是"

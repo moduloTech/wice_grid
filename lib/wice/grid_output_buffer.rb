@@ -3,7 +3,7 @@ module Wice
 
     # defines behavior for rendering nonexistent filters.
     # If return_empty_strings_for_nonexistent_filters is true, a call to render a non existent filter will raise an exception
-    # If return_empty_strings_for_nonexistent_filters is false (CSV mode), no exception will be raised.
+    # If return_empty_strings_for_nonexistent_filters is false (XLSX mode), no exception will be raised.
     attr_accessor :return_empty_strings_for_nonexistent_filters
 
     # initializes a grid output buffer

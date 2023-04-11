@@ -3,7 +3,7 @@
   g.column name:  'ID', attribute: 'id', filter: false
 
   # html version
-  g.column name:  'Title', attribute: 'title', in_csv: false do |task|
+  g.column name:  'Title', attribute: 'title', in_xlsx: false do |task|
     link_to('Edit', edit_task_path(task.title))
   end
   # plain text version
@@ -20,7 +20,7 @@
   end
 
   # html version
-  g.column name:  'Project Name', attribute: 'project_id', custom_filter: Project.to_dropdown,  in_csv: false do |task|
+  g.column name:  'Project Name', attribute: 'project_id', custom_filter: Project.to_dropdown,  in_xlsx: false do |task|
     link_to_if(task.project, task.project.name, project_path(task.project) )
   end
   # plain text version
@@ -36,8 +36,8 @@
     task.created_at.to_s(:short)
   end
 
-  # is not included into csv
-  g.column  in_csv: false do |task|
+  # is not included into xlsx
+  g.column  in_xlsx: false do |task|
     link_to('Edit', edit_task_path(task))
   end
 end -%>

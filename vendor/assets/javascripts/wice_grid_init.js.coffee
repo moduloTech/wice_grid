@@ -189,7 +189,7 @@ setupHidingShowingOfFilterRow = (wiceGridContainer) ->
 
 
 setupCsvExport = (wiceGridContainer, gridProcessor) ->
-  $('.export-to-csv-button', wiceGridContainer).click ->
+  $('.export-to-xlsx-button', wiceGridContainer).click ->
     gridProcessor.exportToCsv()
 
 
@@ -312,7 +312,7 @@ getGridProcessorForElement = (element) ->
 
 setupExternalCsvExport =  ->
 
-  $(".wg-external-csv-export-button").each (index, externalCsvExportButton) ->
+  $(".wg-external-xlsx-export-button").each (index, externalCsvExportButton) ->
     gridProcessor = getGridProcessorForElement(externalCsvExportButton)
     if gridProcessor
       $(externalCsvExportButton).click (event) ->
