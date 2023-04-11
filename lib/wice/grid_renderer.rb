@@ -103,7 +103,7 @@ module Wice
     alias_method :each, :each_column
     include Enumerable
 
-    def xlsx_export_icon #:nodoc:
+    def xslx_export_icon #:nodoc:
       content_tag(
         :div,
         content_tag(:i, '', class: 'fa fa-file-excel-o'),
@@ -317,7 +317,7 @@ module Wice
         filter_control_options:      {},
         filter_type:                 nil,
         html:                        {},
-        in_xlsx:                     true,
+        in_xlsx:                      true,
         in_html:                     true,
         model:                       nil, # will throw an exception with instructions
         name:                        '',
