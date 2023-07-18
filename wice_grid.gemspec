@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name          = 'wice_grid'
   s.version       = '6.1.1'
-  s.authors       = ['Yuri Leikind and contributors']
+  s.authors       = ['Yuri Leikind and contributors', 'Modulotech']
   s.email         = ['ciappa_m@modulotech.fr']
   s.homepage      = 'https://github.com/moduloTech/wice_grid'
   s.summary       = 'A Rails grid plugin to quickly create grids with sorting, pagination, and filters.'
