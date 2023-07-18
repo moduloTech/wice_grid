@@ -317,7 +317,7 @@ module Wice
         filter_control_options:      {},
         filter_type:                 nil,
         html:                        {},
-        in_xlsx:                      true,
+        in_xlsx:                     true,
         in_html:                     true,
         model:                       nil, # will throw an exception with instructions
         name:                        '',
