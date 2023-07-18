@@ -68,9 +68,9 @@ module Wice
   # Main class responsible for keeping the state of the grid, building an ActiveRelation, and running queries
   class WiceGrid
     attr_reader :klass, :name, :resultset, :custom_order, :query_store_model #:nodoc:
-    attr_reader :ar_options, :status, :export_to_csv_enabled, :csv_file_name, :csv_field_separator, :csv_encoding, :saved_query #:nodoc:
+    attr_reader :ar_options, :status, :export_to_xlsx_enabled, :xlsx_file_name, :saved_query #:nodoc:
     attr_writer :renderer #:nodoc:
-    attr_accessor :output_buffer, :view_helper_finished, :csv_tempfile #:nodoc:
+    attr_accessor :output_buffer, :view_helper_finished, :axlsx_package #:nodoc:
 
     # core workflow methods START
 
@@ -79,10 +79,10 @@ module Wice
 
       @relation = klass_or_relation
       @klass = if @relation.is_a?(Class) && @relation.ancestors.index(ActiveRecord::Base)
-        klass_or_relation
-      else
-        klass_or_relation.klass
-      end
+                 klass_or_relation
+               else
+                 klass_or_relation.klass
+               end
 
       unless @klass.is_a?(Class) && @klass.ancestors.index(ActiveRecord::Base)
         raise WiceGridArgumentError.new('ActiveRecord model class (second argument) must be a Class derived from ActiveRecord::Base')
@@ -99,7 +99,7 @@ module Wice
 
       # validate :order_direction
       if opts[:order_direction] && ! (opts[:order_direction] == 'asc' || opts[:order_direction] == :asc || opts[:order_direction] == 'desc' ||
-                                      opts[:order_direction] == :desc)
+        opts[:order_direction] == :desc)
         raise WiceGridArgumentError.new(":order_direction must be either 'asc' or 'desc'.")
       end
 
@@ -107,11 +107,9 @@ module Wice
         # options that are understood
         @options = {
           conditions:                 nil,
-          csv_file_name:              nil,
-          csv_field_separator:        ConfigurationProvider.value_for(:CSV_FIELD_SEPARATOR),
-          csv_encoding:               ConfigurationProvider.value_for(:CSV_ENCODING),
+          xlsx_file_name:              nil,
           custom_order:               {},
-          enable_export_to_csv:       ConfigurationProvider.value_for(:ENABLE_EXPORT_TO_CSV),
+          enable_export_to_xlsx:       ConfigurationProvider.value_for(:ENABLE_EXPORT_TO_XLSX),
           group:                      nil,
           include:                    nil,
           joins:                      nil,
@@ -128,17 +126,15 @@ module Wice
         }
       rescue NameError
         raise NameError.new('A constant is missing in wice_grid_config.rb: ' + $ERROR_INFO.message +
-          '. This can happen when you upgrade the WiceGrid to a newer version with a new configuration constant. ' \
+                              '. This can happen when you upgrade the WiceGrid to a newer version with a new configuration constant. ' \
           'Add the constant manually or re-run `bundle exec rails g wice_grid:install`.')
       end
       # validate parameters
       opts.assert_valid_keys(@options.keys)
 
       @options.merge!(opts)
-      @export_to_csv_enabled = @options[:enable_export_to_csv]
-      @csv_file_name = @options[:csv_file_name]
-      @csv_field_separator = @options[:csv_field_separator]
-      @csv_encoding = @options[:csv_encoding]
+      @export_to_xlsx_enabled = @options[:enable_export_to_xlsx]
+      @xlsx_file_name = @options[:xlsx_file_name]
 
       case @name = @options[:name]
       when String
@@ -217,19 +213,19 @@ module Wice
     def process_params  #:nodoc:
       if this_grid_params
         @status.merge!(this_grid_params)
-        @status.delete(:export) unless self.export_to_csv_enabled
+        @status.delete(:export) unless self.export_to_xlsx_enabled
       end
     end
 
     # declare_column(String, ActiveRecord, CustomFilterSpec, nil | string, nil | Boolean)
     def declare_column(
-                 column_name: nil,
-                 model: nil,
-                 custom_filter_active: nil,
-                 table_alias: nil,
-                 filter_type: nil,
-                 assocs: [],
-                 sort_by: nil)  #:nodoc:
+      column_name: nil,
+      model: nil,
+      custom_filter_active: nil,
+      table_alias: nil,
+      filter_type: nil,
+      assocs: [],
+      sort_by: nil)  #:nodoc:
 
 
       @options[:include] = Wice.build_includes(@options[:include], assocs)
@@ -272,13 +268,13 @@ module Wice
 
       # validate @status[:order_direction]
       @status[:order_direction] = case @status[:order_direction]
-      when /desc/i
-        'desc'
-      when /asc/i
-        'asc'
-      else
-        ''
-      end
+                                  when /desc/i
+                                    'desc'
+                                  when /asc/i
+                                    'asc'
+                                  else
+                                    ''
+                                  end
 
       # conditions
       # do not delete for a while
@@ -355,9 +351,9 @@ module Wice
       form_ar_options
       use_default_or_unscoped do
         relation = @relation
-                       .includes(@ar_options[:include])
-                       .joins(@ar_options[:joins])
-                       .merge(@ar_options[:conditions])
+                     .includes(@ar_options[:include])
+                     .joins(@ar_options[:joins])
+                     .merge(@ar_options[:conditions])
         relation = relation.group(@ar_options[:group]) if @ar_options[:group].present?
         relation = add_references relation
         relation = apply_sort_by relation
@@ -365,13 +361,13 @@ module Wice
         # If relation is an Array, it got the sort from apply_sort_by.
         relation = relation.order(@ar_options[:order]) if !relation.is_a?(Array)
 
-        if !output_csv? && !all_record_mode?
+        if !output_xlsx? && !all_record_mode?
           if relation.is_a?(Array)
             relation = Kaminari.paginate_array(relation, limit: @ar_options[:per_page], offset: @ar_options[:per_page].to_i * (@ar_options[:page].to_i - 1))
           else
             relation = relation
-                           .send(@options[:page_method_name], @ar_options[:page])
-                           .per(@ar_options[:per_page])
+                         .send(@options[:page_method_name], @ar_options[:page])
+                         .per(@ar_options[:per_page])
           end
         end
 
@@ -515,8 +511,8 @@ module Wice
       end.sort { |a, b| a[0] <=> b[0] }
     end
 
-    def output_csv? #:nodoc:
-      @status[:export] == 'csv'
+    def output_xlsx? #:nodoc:
+      @status[:export] == 'xlsx'
     end
 
     def output_html? #:nodoc:
@@ -567,12 +563,12 @@ module Wice
 
       fully_qualified_column_name = complete_column_name(@status[:order])
       custom_order = if @options[:custom_order].key?(fully_qualified_column_name)
-        @options[:custom_order][fully_qualified_column_name]
-      else
-        if view_column = @renderer[fully_qualified_column_name]
-          view_column.custom_order
-        end
-      end
+                       @options[:custom_order][fully_qualified_column_name]
+                     else
+                       if view_column = @renderer[fully_qualified_column_name]
+                         view_column.custom_order
+                       end
+                     end
 
       return custom_order if custom_order.nil? || custom_order.is_a?(Arel::Attributes::Attribute)
       return custom_order.gsub(/\?/, fully_qualified_column_name) if custom_order.is_a?(String)
@@ -609,9 +605,9 @@ module Wice
 
       use_default_or_unscoped do
         relation = @relation.joins(@ar_options[:joins])
-                   .includes(@ar_options[:include])
-                   .group(@ar_options[:group])
-                   .where(@options[:conditions])
+                            .includes(@ar_options[:include])
+                            .group(@ar_options[:group])
+                            .where(@options[:conditions])
 
         relation = add_references relation
 
@@ -642,10 +638,10 @@ module Wice
 
       use_default_or_unscoped do
         relation = @relation
-                   .joins(@ar_options[:joins])
-                   .includes(@ar_options[:include])
-                   .order(@ar_options[:order])
-                   .merge(@ar_options[:conditions])
+                     .joins(@ar_options[:joins])
+                     .includes(@ar_options[:include])
+                     .order(@ar_options[:order])
+                     .merge(@ar_options[:conditions])
 
         relation = add_references relation
       end

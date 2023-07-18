@@ -37,9 +37,8 @@ module Wice
     # * <tt>:order_direction</tt> - <tt>:asc</tt> for ascending or <tt>:desc</tt> for descending. The default is <tt>:asc</tt>.
     # * <tt>:name</tt> - name of the grid. Only needed if there is a second grid on a page. The name serves as the base name for
     #   HTTP parametes, DOM IDs, etc. The shorter the name, the shorter the GET request is. The name can only contain alphanumeruc characters.
-    # * <tt>:enable_export_to_csv</tt> - <Enable export of the table to CSV. Read the How-To to learn what else is needed to enable CSV export.
-    # * <tt>:csv_file_name</tt> - Name of the exported CSV file. If the parameter is missing, the name of the grid will be used instead.
-    # * <tt>:csv_field_separator</tt> - field separator for CSV files. The default is defined in +CSV_FIELD_SEPARATOR+ in the config file.
+    # * <tt>:enable_export_to_xlsx</tt> - <Enable export of the table to XLSX. Read the How-To to learn what else is needed to enable XLSX export.
+    # * <tt>:xlsx_file_name</tt> - Name of the exported XLSX file. If the parameter is missing, the name of the grid will be used instead.
     # * <tt>:custom_order</tt> - used for overriding the ORDER BY clause with custom sql code (for example, using an SQL
     #   function). A Hash with keys of the fully qualified names of database columns and with values that specify the
     #   ordering to be used, without specifying the direction (no ASC or DESC). The values of this Hash can any String
@@ -73,11 +72,11 @@ module Wice
     end
 
     # +export_grid_if_requested+ is a controller method which should be called at the end of each action containing grids with enabled
-    # CSV export.
+    # XLSX export.
     #
-    # CSV export will only work if each WiceGrid helper is placed in a partial of its own (requiring it from the master template
+    # XLSX export will only work if each WiceGrid helper is placed in a partial of its own (requiring it from the master template
     # of course for the usual flow).
-    # +export_grid_if_requested+ intercepts CSV export requests and evaluates the corresponding partial with the required  grid helper.
+    # +export_grid_if_requested+ intercepts XLSX export requests and evaluates the corresponding partial with the required  grid helper.
     # By default for each grid +export_grid_if_requested+ will look for a partial
     # whose name follows the following pattern:
     #
@@ -91,7 +90,7 @@ module Wice
     #
     #   export_grid_if_requested('grid' => 'orders', 'grid2' => 'invoices')
     #
-    # If the request is not a CSV export request, the method does nothing and returns +false+, if it is a CSV export request,
+    # If the request is not a XLSX export request, the method does nothing and returns +false+, if it is a XLSX export request,
     # the method returns +true+.
     #
     # If the action has no explicit +render+ call, it's OK to just place +export_grid_if_requested+ as the last line of the action. Otherwise,
@@ -99,24 +98,28 @@ module Wice
     #
     #    export_grid_if_requested || render(action: 'index')
     #
-    # It's also possible to supply a block which will be called if no CSV export is requested:
+    # It's also possible to supply a block which will be called if no XLSX export is requested:
     #
     #    export_grid_if_requested do
     #     render(action: 'index')
     #    end
 
     def export_grid_if_requested(opts = {})
-      grid = self.wice_grid_instances.detect(&:output_csv?)
+      grid = self.wice_grid_instances.detect(&:output_xlsx?)
 
       if grid
         template_name = opts[grid.name] || opts[grid.name.intern]
         template_name ||= grid.name + '_grid'
         temp_filename = render_to_string(partial: template_name)
         temp_filename = temp_filename.strip
-        filename = (grid.csv_file_name || grid.name) + '.csv'
-        grid.csv_tempfile.close
-        send_file temp_filename, filename: filename, type: "text/csv; charset=#{get_output_encoding grid.csv_encoding}"
-        grid.csv_tempfile = nil
+        filename = (grid.xlsx_file_name || grid.name) + '.xlsx'
+
+        send_data grid.axlsx_package.to_stream.read,
+                  filename: filename,
+                  type: "application/xlsx",
+                  disposition: 'inline',
+                  stream: 'true',
+                  buffer_size: '4096'
         true
       else
         yield if block_given?
@@ -161,14 +164,5 @@ module Wice
       { "#{options[:grid_name]}[f][#{attr_name}][]" => options[:value] }
     end
 
-    private
-
-    def get_output_encoding(csv_encoding)
-      if csv_encoding.blank?
-        'utf-8'
-      else
-        csv_encoding.split(':').first
-      end
-    end
   end
 end

@@ -2,7 +2,7 @@ uk:
   wice_grid:
     show_filter_tooltip: "Показати фільтр"
     hide_filter_tooltip: "Сховати фільтр"
-    csv_export_tooltip: "Експорт в CSV"
+    xlsx_export_tooltip: "Експорт в XLSX"
     filter_tooltip: "Фільтрувати"
     reset_filter_tooltip: "Скинути фільтр"
     boolean_filter_true_label: "так"

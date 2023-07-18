@@ -28,15 +28,8 @@ if defined?(Wice::Defaults)
   # Show the upper pagination panel by default or not
   Wice::Defaults::SHOW_UPPER_PAGINATION_PANEL = false
 
-  # Disabling CSV export by default
-  Wice::Defaults::ENABLE_EXPORT_TO_CSV = false
-
-  # Default CSV field separator
-  Wice::Defaults::CSV_FIELD_SEPARATOR = ','
-
-  # Default CSV encoding (p.e. 'CP1252:UTF-8' to make Microsoft Excel(tm) happy)
-  Wice::Defaults::CSV_ENCODING = nil
-
+  # Disabling XLSX export by default
+  Wice::Defaults::ENABLE_EXPORT_TO_XLSX = false
 
   # The strategy when to show the filter.
   # * <tt>:when_filtered</tt> - when the table is the result of filtering

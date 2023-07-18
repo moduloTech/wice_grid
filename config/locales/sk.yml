@@ -2,7 +2,7 @@ sk:
   wice_grid:
     show_filter_tooltip: Zobraziť filter
     hide_filter_tooltip: Skryť filter
-    csv_export_tooltip: Exportovať do CSV
+    xlsx_export_tooltip: Exportovať do XLSX
     filter_tooltip: Filter
     reset_filter_tooltip: Zrušiť filtre
     boolean_filter_true_label: "áno"

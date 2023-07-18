@@ -2,7 +2,7 @@ fr:
   wice_grid:
     show_filter_tooltip: Afficher le filtre
     hide_filter_tooltip: Cacher le filtrer
-    csv_export_tooltip: Exporter en CSV
+    xlsx_export_tooltip: Exporter en XLSX
     filter_tooltip: Filtrer
     reset_filter_tooltip: Effacer
     boolean_filter_true_label: oui
