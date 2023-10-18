@@ -113,6 +113,7 @@ module Wice
           group:                      nil,
           include:                    nil,
           joins:                      nil,
+          partial:                    nil,
           name:                       ConfigurationProvider.value_for(:GRID_NAME),
           order:                      nil,
           order_direction:            ConfigurationProvider.value_for(:ORDER_DIRECTION),
