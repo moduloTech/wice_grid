@@ -109,7 +109,7 @@ module Wice
 
       if grid
         template_name = opts[grid.name] || opts[grid.name.intern]
-        template_name ||= grid.name + '_grid'
+        template_name ||= grid.partial || (grid.name + '_grid')
         temp_filename = render_to_string(partial: template_name)
         temp_filename = temp_filename.strip
         filename = (grid.xlsx_file_name || grid.name) + '.xlsx'
