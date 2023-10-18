@@ -137,6 +137,8 @@ module Wice
       @export_to_xlsx_enabled = @options[:enable_export_to_xlsx]
       @xlsx_file_name = @options[:xlsx_file_name]
 
+      @partial = @options[:partial] if @options[:partial].present?
+
       case @name = @options[:name]
       when String
       when Symbol
