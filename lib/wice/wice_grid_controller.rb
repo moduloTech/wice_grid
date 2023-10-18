@@ -104,7 +104,7 @@ module Wice
     #     render(action: 'index')
     #    end
 
-    def export_grid_if_requested(opts = {})
+    def export_grid_if_requested
       grid = self.wice_grid_instances.detect(&:output_xlsx?)
 
       if grid
@@ -116,7 +116,6 @@ module Wice
         render_to_string(partial: partial, locals: locals)
 
         filename = (grid.xlsx_file_name || grid.name) + '.xlsx'
-
         send_data grid.axlsx_package.to_stream.read,
                   filename: filename,
                   type: "application/xlsx",
