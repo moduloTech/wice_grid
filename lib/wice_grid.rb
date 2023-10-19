@@ -67,7 +67,7 @@ module Wice
 
   # Main class responsible for keeping the state of the grid, building an ActiveRelation, and running queries
   class WiceGrid
-    attr_reader :klass, :name, :resultset, :custom_order, :query_store_model #:nodoc:
+    attr_reader :klass, :name, :partial, :resultset, :custom_order, :query_store_model #:nodoc:
     attr_reader :ar_options, :status, :export_to_xlsx_enabled, :xlsx_file_name, :saved_query #:nodoc:
     attr_writer :renderer #:nodoc:
     attr_accessor :output_buffer, :view_helper_finished, :axlsx_package #:nodoc:
@@ -113,6 +113,7 @@ module Wice
           group:                      nil,
           include:                    nil,
           joins:                      nil,
+          partial:                    nil,
           name:                       ConfigurationProvider.value_for(:GRID_NAME),
           order:                      nil,
           order_direction:            ConfigurationProvider.value_for(:ORDER_DIRECTION),
@@ -135,6 +136,8 @@ module Wice
       @options.merge!(opts)
       @export_to_xlsx_enabled = @options[:enable_export_to_xlsx]
       @xlsx_file_name = @options[:xlsx_file_name]
+
+      @partial = @options[:partial] if @options[:partial].present?
 
       case @name = @options[:name]
       when String
