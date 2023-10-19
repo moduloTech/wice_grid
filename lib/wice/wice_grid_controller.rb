@@ -111,6 +111,8 @@ module Wice
         locals = (opts[:locals] || {}).merge({grid: grid})
         partial = opts[grid.name] || opts[grid.name.intern]
         partial ||= grid.partial || (grid.name + '_grid')
+        # The render_to_string is necessary for the XLSX export to work
+        # The code in the view has to be evaluate
         render_to_string(partial: partial, locals: locals)
 
         filename = (grid.xlsx_file_name || grid.name) + '.xlsx'
