@@ -112,7 +112,7 @@ module Wice
         partial = opts[grid.name] || opts[grid.name.intern]
         partial ||= grid.partial || (grid.name + '_grid')
         # The render_to_string is necessary for the XLSX export to work
-        # The code in the view has to be evaluate
+        # The code in the view has to be evaluated
         render_to_string(partial: partial, locals: locals)
 
         filename = (grid.xlsx_file_name || grid.name) + '.xlsx'
