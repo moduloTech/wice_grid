@@ -587,10 +587,10 @@ module Wice
 
     def column_link(column, direction, params, extra_parameters = {})   #:nodoc:
       column_attribute_name = if column.attribute.index('.') || column.main_table || column.table_alias_or_table_name.nil?
-          column.attribute
-        else
-          column.table_alias_or_table_name + '.' + column.attribute
-        end
+        column.attribute
+      else
+        column.table_alias_or_table_name + '.' + column.attribute
+      end
 
       query_params = { @grid.name => {
         ORDER_PARAMETER_NAME           => column_attribute_name,
