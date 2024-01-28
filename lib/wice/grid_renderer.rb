@@ -339,7 +339,7 @@ module Wice
       unless options[:assoc].nil?
 
         unless options[:assoc].is_a?(Symbol) ||
-          (options[:assoc].is_a?(Array) && ! options[:assoc].empty? && options[:assoc].all?{ |assoc| assoc.is_a?(Symbol)})
+              (options[:assoc].is_a?(Array) && ! options[:assoc].empty? && options[:assoc].all?{ |assoc| assoc.is_a?(Symbol)})
 
           raise WiceGridArgumentError.new('Option :assoc can only be a symbol or an array of symbols')
         end
@@ -587,10 +587,10 @@ module Wice
 
     def column_link(column, direction, params, extra_parameters = {})   #:nodoc:
       column_attribute_name = if column.attribute.index('.') || column.main_table || column.table_alias_or_table_name.nil?
-                                column.attribute
-                              else
-                                column.table_alias_or_table_name + '.' + column.attribute
-                              end
+          column.attribute
+        else
+          column.table_alias_or_table_name + '.' + column.attribute
+        end
 
       query_params = { @grid.name => {
         ORDER_PARAMETER_NAME           => column_attribute_name,
