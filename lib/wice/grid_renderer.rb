@@ -320,7 +320,7 @@ module Wice
         in_xlsx:                     true,
         in_html:                     true,
         model:                       nil, # will throw an exception with instructions
-        name:                        '',
+        name:                        nil,
         negation:                    ConfigurationProvider.value_for(:NEGATION_IN_STRING_FILTERS),
         ordering:                    true,
         table_alias:                 nil,
@@ -339,7 +339,7 @@ module Wice
       unless options[:assoc].nil?
 
         unless options[:assoc].is_a?(Symbol) ||
-              (options[:assoc].is_a?(Array) && ! options[:assoc].empty? && options[:assoc].all?{ |assoc| assoc.is_a?(Symbol)})
+          (options[:assoc].is_a?(Array) && ! options[:assoc].empty? && options[:assoc].all?{ |assoc| assoc.is_a?(Symbol)})
 
           raise WiceGridArgumentError.new('Option :assoc can only be a symbol or an array of symbols')
         end
@@ -393,6 +393,10 @@ module Wice
         # [ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::Column, String, Boolean]
         db_column, table_name, main_table = col_type_and_table_name
         col_type = db_column.type
+
+        if options[:name].nil?
+          options[:name] = db_column.model.human_attribute_name options[:attribute]
+        end
 
         if options[:custom_filter]
 
@@ -449,6 +453,9 @@ module Wice
         end # custom_filter
 
       end # attribute
+
+      # Default column name if not already overwited
+      options[:name] ||= ''
 
       vc = klass.new(block, options, @grid, table_name, main_table, custom_filter, @view)
 
@@ -580,10 +587,10 @@ module Wice
 
     def column_link(column, direction, params, extra_parameters = {})   #:nodoc:
       column_attribute_name = if column.attribute.index('.') || column.main_table || column.table_alias_or_table_name.nil?
-        column.attribute
-      else
-        column.table_alias_or_table_name + '.' + column.attribute
-      end
+                                column.attribute
+                              else
+                                column.table_alias_or_table_name + '.' + column.attribute
+                              end
 
       query_params = { @grid.name => {
         ORDER_PARAMETER_NAME           => column_attribute_name,
