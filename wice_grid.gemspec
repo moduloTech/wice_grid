@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name          = 'wice_grid'
-  s.version       = '6.1.2'
+  s.version       = '6.2.0'
   s.authors       = ['Yuri Leikind and contributors', 'Modulotech']
-  s.email         = ['ciappa_m@modulotech.fr']
+  s.email         = ['ciappa_m@modulotech.fr', 'billau_l@modulotech.fr']
   s.homepage      = 'https://github.com/moduloTech/wice_grid'
   s.summary       = 'A Rails grid plugin to quickly create grids with sorting, pagination, and filters.'
   s.description   = 'A Rails grid plugin to create grids with sorting, pagination, and filters generated automatically based on column types. ' \
@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'caxlsx',            ['~> 3.3.0']
 
   s.add_development_dependency('rake',  '~> 10.1')
-  s.add_development_dependency('byebug')
   s.add_development_dependency('appraisal')
 
   s.add_development_dependency('rspec', '~> 3.6.0')
