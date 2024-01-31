@@ -320,7 +320,7 @@ module Wice
         in_xlsx:                     true,
         in_html:                     true,
         model:                       nil, # will throw an exception with instructions
-        name:                        '',
+        name:                        nil,
         negation:                    ConfigurationProvider.value_for(:NEGATION_IN_STRING_FILTERS),
         ordering:                    true,
         table_alias:                 nil,
@@ -394,6 +394,10 @@ module Wice
         db_column, table_name, main_table = col_type_and_table_name
         col_type = db_column.type
 
+        if options[:name].nil?
+          options[:name] = db_column.model.human_attribute_name options[:attribute]
+        end
+
         if options[:custom_filter]
 
           custom_filter = if options[:custom_filter] == :auto
@@ -449,6 +453,9 @@ module Wice
         end # custom_filter
 
       end # attribute
+
+      # Default column name if not already overwited
+      options[:name] ||= ''
 
       vc = klass.new(block, options, @grid, table_name, main_table, custom_filter, @view)
 
