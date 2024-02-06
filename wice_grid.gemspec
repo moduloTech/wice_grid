@@ -16,9 +16,9 @@ Gem::Specification.new do |s|
   s.date          = '2023-04-04'
 
   s.add_dependency 'rails', '>= 5.0', '< 8'
-  s.add_dependency 'kaminari',          ['~> 1.1']
-  s.add_dependency 'coffee-rails',      ['> 3.2']
-  s.add_dependency 'caxlsx',            ['~> 3.3.0']
+  s.add_dependency 'kaminari', '~> 1.1'
+  s.add_dependency 'coffee-rails', '> 3.2'
+  s.add_dependency 'caxlsx', '~> 3', '< 4'
 
   s.add_development_dependency('rake',  '~> 10.1')
   s.add_development_dependency('appraisal')
