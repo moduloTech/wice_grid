@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'wice_grid'
-  s.version       = '6.2.0'
+  s.version       = '6.3.0'
   s.authors       = ['Yuri Leikind and contributors', 'Modulotech']
   s.email         = ['ciappa_m@modulotech.fr', 'billau_l@modulotech.fr']
   s.homepage      = 'https://github.com/moduloTech/wice_grid'

@@ -265,8 +265,6 @@ module Wice
           end
         end
 
-        @table_column_matrix.add_condition(column, conditions)
-
         # [ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::Column, String, Boolean]
         [column, table_name, main_table]
       end
