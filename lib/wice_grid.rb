@@ -230,9 +230,6 @@ module Wice
       assocs: [],
       sort_by: nil)  #:nodoc:
 
-
-      @options[:include] = Wice.build_includes(@options[:include], assocs)
-
       if model # this is an included table
         column = @table_column_matrix.get_column_by_model_class_and_column_name(model, column_name)
         raise WiceGridArgumentError.new("Column '#{column_name}' is not found in table '#{model.table_name}'!") if column.nil?
@@ -254,8 +251,18 @@ module Wice
         conditions_generator = ActiveRecordColumnWrapper.new(column, @status[:f], main_table, table_alias, custom_filter_active, filter_type)
         conditions, current_parameter_name = conditions_generator.wg_initialize_request_parameters
 
-        if @status[:f] && conditions.blank?
-          @status[:f].delete(current_parameter_name)
+        if @status[:f]
+          # If the generated condition is blank, remove it from the status
+          if conditions.blank?
+            @status[:f].delete(current_parameter_name)
+            # Otherwize, add it to the column matrix and include the assocs
+            # NOTE : This behavior increase performance on large table
+            #   As any `include` introduce a `LEFT OUTER JOIN` in the finale query
+            #   And each of them make the total_count query un-necessary heavier
+          else
+            @options[:include] = Wice.build_includes(@options[:include], assocs)
+            @table_column_matrix.add_condition(column, conditions)
+          end
         end
 
         @table_column_matrix.add_condition(column, conditions)
