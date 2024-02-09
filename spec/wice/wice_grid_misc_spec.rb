@@ -1,23 +1,3 @@
-context 'assoc_list_to_hash' do
-  it 'many elements in assocs' do
-    assocs = [:foo1, :foo2, :foo3, :foo4, :foo5]
-    out = Wice.assoc_list_to_hash(assocs)
-    expect(out).to eq(foo1: {foo2: {foo3: {foo4: :foo5}}})
-  end
-
-  it 'one element in assocs' do
-    assocs = [:foo1]
-    out = Wice.assoc_list_to_hash(assocs)
-    expect(out).to eq(:foo1)
-  end
-
-  it 'two elements in assocs' do
-    assocs = [:foo1, :foo2]
-    out = Wice.assoc_list_to_hash(assocs)
-    expect(out).to eq(foo1: :foo2)
-  end
-end
-
 context 'build_includes' do
 
   it 'symbols + existing symbol' do
@@ -78,11 +58,11 @@ context 'build_includes' do
   end
 
   it 'symbols with a hash + the same hash' do
-    includes = [a: :x]
+    includes = [{a: :x}]
 
     out = Wice.build_includes(includes, [:a, :x])
 
-    expect(out).to eq(a: :x)
+    expect(out).to eq([{a: :x}])
   end
 
   it 'symbols with a hash + a deeper hash' do
@@ -90,15 +70,15 @@ context 'build_includes' do
 
     out = Wice.build_includes(includes, [:a, :x, :y])
 
-    expect(out).to eq(a: {x: :y})
+    expect(out).to eq([{ a: { x: :y } }])
   end
 
   it 'a deeper hash + a deeper hash' do
-    includes = [a: {x: :y}]
+    includes = [{ a: { x: :y } }]
 
     out = Wice.build_includes(includes, [:a, :x, :z])
 
-    expect(out).to eq(a: [:y, :z])
+    expect(out).to eq([{ a: [:z, :y] }])
   end
 
 
@@ -107,15 +87,23 @@ context 'build_includes' do
 
     out = Wice.build_includes(includes, [:a, :x, :y])
 
-    expect(out).to eq(a: {x: :y})
+    expect(out).to eq([{ a: { x: :y } }])
   end
 
   it '1 symbol + hash ' do
-    includes = :b
+    includes = [:b]
 
     out = Wice.build_includes(includes, [:a, :x])
 
     expect(out).to eq([:b, {a: :x}])
+  end
+
+  it 'hash + 1 symbol' do
+    includes = [{ a: :x }]
+
+    out = Wice.build_includes(includes, [:b])
+
+    expect(out).to eq([{a: :x}, :b])
   end
 
   it 'nil + hash ' do
@@ -127,19 +115,11 @@ context 'build_includes' do
   end
 
   it '1 symbol + nothing' do
-    includes = :b
-
-    out = Wice.build_includes(includes, [])
-
-    expect(out).to eq(:b)
-  end
-
-  it '1 symbol array + nothing' do
     includes = [:b]
 
     out = Wice.build_includes(includes, [])
 
-    expect(out).to eq(:b)
+    expect(out).to eq([:b])
   end
 
   it 'validate_query_model' do
