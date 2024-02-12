@@ -39,7 +39,7 @@ module Wice
       end
 
       def self.merge_with_array(array, current:, other:)
-        unless array.include?(current) || array.select{|e| e.is_a?(Hash)}.map{|e| e.keys}.flatten.include?(current)
+        unless array.include?(current) || array.select { |e| e.is_a?(Hash) }.map(&:keys).flatten.include?(current)
           array.push(current)
         end
 
