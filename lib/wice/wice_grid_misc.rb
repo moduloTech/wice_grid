@@ -24,6 +24,7 @@ module Wice
 
         current = relations.first
         return join if current.nil?
+
         other = relations[1..-1].presence
         other = other.first if other&.length == 1
 
