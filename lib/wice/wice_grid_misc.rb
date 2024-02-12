@@ -10,7 +10,7 @@ module Wice
       end
 
       def << (relations)
-        @join = Join::add_join(@join, relations)
+        @join = Join.add_join(@join, relations)
       end
 
       def to_a
