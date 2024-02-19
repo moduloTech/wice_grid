@@ -10,7 +10,7 @@ module Wice
       end
 
       def << (relations)
-        @join = Join::add_join(@join, relations)
+        @join = Join.add_join(@join, relations)
       end
 
       def to_a
@@ -24,6 +24,7 @@ module Wice
 
         current = relations.first
         return join if current.nil?
+
         other = relations[1..-1].presence
         other = other.first if other&.length == 1
 
@@ -39,7 +40,7 @@ module Wice
       end
 
       def self.merge_with_array(array, current:, other:)
-        unless array.include?(current) || array.select{|e| e.is_a?(Hash)}.map{|e| e.keys}.flatten.include?(current)
+        unless array.include?(current) || array.select { |e| e.is_a?(Hash) }.map(&:keys).flatten.include?(current)
           array.push(current)
         end
 
