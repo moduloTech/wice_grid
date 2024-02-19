@@ -1,124 +1,114 @@
 module Wice
   class << self
 
-    # a flag storing whether the saved query class is a valid storage for saved queries
-    @@model_validated = false
+    class Join
 
-    def assoc_list_to_hash(assocs) #:nodoc:
-      head = assocs[0]
-      tail = assocs[1..-1]
-
-      if tail.blank?
-        head
-      elsif tail.size == 1
-        {head => tail[0]}
-      else
-        {head => assoc_list_to_hash(tail)}
+      def initialize(source = nil)
+        source ||= []
+        source = [source] unless source.is_a? Array
+        @join = source
       end
-    end
 
-    def build_includes(existing_includes, new_assocs) #:nodoc:
-      new_includes = if new_assocs.blank?
-        existing_includes
-      else
-        existing_includes = if existing_includes.is_a?(Symbol)
-          [existing_includes]
-        elsif existing_includes.nil?
-          []
-        else
-          existing_includes
+      def << (relations)
+        @join = Join.add_join(@join, relations)
+      end
+
+      def to_a
+        @join
+      end
+
+      private
+
+      def self.add_join(join, relations)
+        relations = [*relations]
+
+        current = relations.first
+        return join if current.nil?
+
+        other = relations[1..-1].presence
+        other = other.first if other&.length == 1
+
+        if join.is_a? NilClass
+          merge_with_nil(current: current, other: other)
+        elsif join.is_a? Symbol
+          merge_with_symbol(join, current: current, other: other)
+        elsif join.is_a? Hash
+          merge_with_hash(join, current: current, other: other)
+        elsif join.is_a? Array
+          merge_with_array(join, current: current, other: other)
+        end
+      end
+
+      def self.merge_with_array(array, current:, other:)
+        unless array.include?(current) || array.select { |e| e.is_a?(Hash) }.map(&:keys).flatten.include?(current)
+          array.push(current)
         end
 
-        assocs_as_hash = assoc_list_to_hash(new_assocs)
-        build_includes_int(existing_includes, assocs_as_hash)
-      end
+        if other.present?
+          i = array.index { |e| e == current || (e.is_a?(Hash) && e.keys.include?(current))}
 
-      if new_includes.is_a?(Array) && new_includes.size == 1
-        new_includes[0]
-      else
-        new_includes
-      end
-    end
-
-    def build_includes_int(includes, assocs) #:nodoc:
-      if includes.is_a?(Array)
-        build_includes_includes_is_array(includes, assocs)
-      elsif includes.is_a?(Hash)
-        build_includes_includes_is_hash(includes, assocs)
-      end
-    end
-
-    # TODO: refactor
-    def build_includes_includes_is_hash(includes, assocs) #:nodoc:
-
-      includes_key   = includes.keys[0]
-      includes_value = includes.values[0]
-
-      if assocs.is_a?(Hash)
-        assocs_key   = assocs.keys[0]
-        assocs_value = assocs.values[0]
-
-        if includes_value.is_a?(Symbol) && includes_value == assocs_key
-          {includes_key => assocs}
-        elsif includes_value.is_a?(Hash)
-          if includes_value.keys[0] == assocs_key
-            if includes_value.values[0] == assocs_value
-              {includes_key => assocs}
-            else
-              {includes_key => [includes_value.values[0], assocs_value]}
-            end
+          if array[i].is_a? Symbol
+            array[i] = { array[i] => add_join(nil, other) }
+          elsif array[i].is_a? Hash
+            array[i] = { current => add_join(array[i][current], other) }
+          else
+            raise ArgumentError, 'WRONG TYPE'
           end
         end
-      elsif includes_value == assocs
-        {includes_key => assocs}
-      else
-        includes
-      end
-    end
-
-    def build_includes_includes_is_array(includes, assocs) #:nodoc:
-
-      hash_keys = Hash[
-        *(
-          includes
-          .each_with_index
-          .to_a
-          .select{ |e, _idx| e.is_a?(Hash)}
-          .map{ |hash, idx| [ hash.keys[0], idx ] }
-          .flatten
-        )
-      ]
-
-      key_to_search, finished = if assocs.is_a?(Hash)
-        [assocs.keys[0], false]
-      else
-        [assocs, true]
+        return array
       end
 
-      if idx = includes.index(key_to_search)
-        if finished #  [:a, :b, :c]  vs  :a
-          includes
-        else        #  [:a, :b, :c]  vs  {:a => x}
-          includes[idx] = assocs
-          includes
-        end
-
-      elsif hash_keys.key?(key_to_search)
-        if finished # [{a: :x}, :b, :c, :d, :e] vs :a
-          includes
+      def self.merge_with_hash(hash, current:, other:)
+        if other.nil?
+          if hash[current].present?
+            return hash
+          else
+            return [hash, current]
+          end
         else
-          hash_idx = hash_keys[key_to_search]
-          assocs_value = assocs[key_to_search]
-          includes[hash_idx] = build_includes_int(includes[hash_idx], assocs_value)
-          includes
+          if hash[current].present?
+            hash[current] = add_join(other, hash[current])
+            return hash
+          else
+            hash[current] = add_join(other, hash[current])
+            return hash
+          end
         end
-
-      else  # [:a, :b, :c]  vs  :x
-            # [:a, :b, :c]  vs  {:x => y}
-        includes + [assocs]
       end
 
+      def self.merge_with_symbol(symbol, current:, other:)
+        if other.nil?
+          if symbol == current
+            return symbol
+          else
+            return [symbol, current]
+          end
+        else
+          if symbol == current
+            return {symbol => add_join(other, nil)}
+          else
+            return [symbol, {current => add_join(other, nil)}]
+          end
+        end
+      end
+
+      def self.merge_with_nil(current:, other:)
+        if other
+          { current => add_join(other, nil)}
+        else
+          current
+        end
+      end
     end
+
+    def build_includes(source, others)
+      join = Join.new(source)
+      join << others
+      join.to_a
+    end
+
+    # a flag storing whether the saved query class is a valid storage for saved queries
+    @@model_validated = false
 
     # checks whether the class is a valid storage for saved queries
     def validate_query_model(query_store_model)  #:nodoc:
