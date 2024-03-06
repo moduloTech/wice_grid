@@ -265,6 +265,11 @@ module Wice
           end
         end
 
+        # Allow sorting colum on assoc, by adding required association on the query
+        if assocs.present? && conditions_generator.parameter_name == @status[:order]
+          @options[:include] = Wice.build_includes(@options[:include], assocs)
+        end
+
         # [ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::Column, String, Boolean]
         [column, table_name, main_table]
       end

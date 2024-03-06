@@ -75,6 +75,14 @@ module Wice
       [wg_generate_conditions, current_parameter_name]
     end
 
+    def parameter_name
+      if @main_table
+        @column.name
+      else
+        alias_or_table_name(@table_alias) + '.' + @column.name
+      end
+    end
+
     def wg_generate_conditions  #:nodoc:
       return nil if @request_params.nil?
 
